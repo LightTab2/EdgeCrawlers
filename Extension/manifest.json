@@ -1,0 +1,17 @@
+﻿{
+    "manifest_version": 2,
+    "name": "EdgeCrawlers", 
+    "version": "0.1",
+    "description": "Wyświetla oszacowaną rzetelność informacji znajdujących się na obecnie przeglądanej strony internetowej",
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": ["localhost:8080"],
+    "content_scripts": [
+    {	
+	"matches": ["https://*/*"],
+        "js": ["jquery.js", "popup.js"],
+        "run_at": "document_idle"
+    }
+    ]
+}
