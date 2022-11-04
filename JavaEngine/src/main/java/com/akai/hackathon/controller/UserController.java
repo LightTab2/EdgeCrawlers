@@ -1,7 +1,6 @@
 package com.akai.hackathon.controller;
 
 import com.akai.hackathon.database.UrlRepository;
-import com.akai.hackathon.database.Urls;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/")
-public class userController {
+public class UserController {
 
     @Autowired
     UrlRepository repo;
