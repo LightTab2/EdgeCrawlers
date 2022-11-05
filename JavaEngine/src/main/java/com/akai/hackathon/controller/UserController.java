@@ -5,6 +5,7 @@ import com.akai.hackathon.database.Urls;
 import com.akai.hackathon.database.User;
 import com.akai.hackathon.database.UserRepository;
 import com.akai.hackathon.urlRater.TieHenClass;
+import org.json.JSONArray;
 import lombok.AllArgsConstructor;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.json.JSONObject;
@@ -28,6 +29,9 @@ public class UserController {
 
     @Autowired
     UserRepository userRepo;
+
+    @Autowired
+    TieHenClass tieHenClass;
     private final JSONObject json = new JSONObject();
     Random rand = new Random();
 
@@ -62,7 +66,7 @@ public class UserController {
 
     @GetMapping(value = "/test")
     void test() {
-        TieHenClass.rateUrl("https://www.gov.pl/");
+        tieHenClass.rateUrl("https://www.gov.pl/");
     }
 
     //@PostMapping(value = "/addUser", consumes = "application/json", produces = "application/json")

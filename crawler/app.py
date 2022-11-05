@@ -16,6 +16,7 @@ def scrap(url):
     urls = []
     for burl in result.stdout.splitlines():
         urls.append(burl.decode("utf-8"))
+        print(burl)
     return list(set(urls))
 
 @app.post("/scrap")
