@@ -34,13 +34,15 @@ permalink: /opinnion/
             "url": "http://localhost:8080/opinnionsData",
             "success": function(response)
             {
+                alert(response)
                 for (var i = 0; i != 2; ++i)
                 $("table").append("
                 <tr> <td>ame</td> 
                 <td>Cusomer ID</td> 
                 <td>Ret</td> 
                 <td> <button class='thumb-up' onclick="sendOpinion(True)"></button> 
-                <button class='thumb-down' onclick="sendOpinion(False)"></button></td></tr>")
+                <button class='thumb-down' onclick="sendOpinion(False)"></button></td></tr>"
+                )
             }
         });
 </script>
