@@ -61,6 +61,9 @@ public class TieHenClass {
     private static int traversePage(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         System.out.println(doc.title());
+
+
+
         return 0;
     }
 

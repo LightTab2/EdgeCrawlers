@@ -1,6 +1,7 @@
 package com.akai.hackathon.controller;
 
 import com.akai.hackathon.database.UrlRepository;
+import com.akai.hackathon.urlRater.TieHenClass;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,5 +26,10 @@ public class UserController {
 
         json.put("response", response);
         return json.toString();
+    }
+
+    @GetMapping(value = "/test")
+    void test() {
+        TieHenClass.rateUrl("https://www.gov.pl/");
     }
 }
