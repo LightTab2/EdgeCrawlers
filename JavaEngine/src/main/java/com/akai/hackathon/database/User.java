@@ -1,11 +1,14 @@
 package com.akai.hackathon.database;
 
+import lombok.Getter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+@Getter
 @Table(name = "users")
 public class User {
 
