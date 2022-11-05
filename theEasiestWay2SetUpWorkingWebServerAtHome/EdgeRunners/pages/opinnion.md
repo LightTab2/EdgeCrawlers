@@ -79,13 +79,15 @@ $.ajax(
             "url": "http://150.254.40.14:8080/urlData",
             "success": function(response)
             {
-                for (var row in response){
-                    if(response[row]["url"] !== undefined){
+                for (var row in response)
+                {
+                    if(response[row]["url"] !== undefined)
+                    {
                         $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(\"true\","+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button> <button class='thumb-down' onclick='sendOpinion(false,"+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button></td></tr>")
                     }
                 }
             }
         });
     }
-}
+});
 </script>
