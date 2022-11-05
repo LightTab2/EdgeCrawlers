@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 #scrapy runspider spider.py -a allowed_domain="www.put.poznan.pl" -a url="https://www.put.poznan.pl/pl/wladze-i-struktura/wydzialy"
 class spider(scrapy.Spider):
     name="spider"
-    f = open('outcome.txt', 'w')
     def __init__(self, url='', allowed_domain='', **kwargs):
         self.start_urls = [url]
         self.allowed_domains = allowed_domain
@@ -16,7 +15,5 @@ class spider(scrapy.Spider):
     def parse(self, response):
         extractor = LinkExtractor(deny_domains = self.allowed_domains)
         links = extractor.extract_links(response)
-        f = open('outcome.txt', 'a')
         for link in links:
             print(urlparse(link.url).netloc)
-            f.write(urlparse(link.url).netloc + "\n")

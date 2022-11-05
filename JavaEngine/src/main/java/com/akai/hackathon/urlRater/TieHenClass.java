@@ -34,7 +34,8 @@ public class TieHenClass {
     @Autowired
     ScrapperClient scrapper;
 
-    static double decayFactor = 0.95;
+    static Pattern patternDomainExtract = Pattern.compile("""
+        ^(?:(?:(?:https|http):\\/\\/)(?:www\\.)?)?(?<named>\\w+\\.\\w+(?:\\.\\w+)*)""");
 
     public int rateUrl(String url) {
         int rating = 0;
@@ -44,7 +45,13 @@ public class TieHenClass {
         switch (domainClassification) {
             case Whitelist:
                 //System.out.printf("Website %s is whitelisted%n", url);
-                repo.saveAndFlush(new Urls(url, 100, 1));
+                String domain = matchDomain(url);
+                Urls newUrl = new Urls(domain, 100, 1);
+                if (repo.existsById(domain)) {
+                    newUrl = repo.getReferenceById(domain);
+                    newUrl.setOccurrences(newUrl.getOccurrences() + 1);
+                }
+                repo.saveAndFlush(newUrl);
                 break;
             case Pass:
                 rating = basicTrustRank(url);
@@ -59,17 +66,10 @@ public class TieHenClass {
         return rating;
     }
 
-    private void temp(String url) throws IOException {
-        Document doc = Jsoup.connect(url).get();
-        Elements links = doc.select("a[href]");
-
-        for (Element linkText : links) {
-//            System.out.println(linkText.toString());
-            if (linkText.toString().contains("http")) {
-                System.out.println(linkText);
-            }
-        }
-
+    private String matchDomain(String url) {
+        Matcher domainMatcher = patternDomainExtract.matcher(url);
+        domainMatcher.find();
+        return domainMatcher.group("named");
     }
 
     private int basicTrustRank(String url) {
@@ -78,12 +78,8 @@ public class TieHenClass {
         Map<String, Integer> domainMap = new HashMap<>();
 
         // Count domain appearances
-        Pattern patternDomainExtract = Pattern.compile("""
-        ^(?:(?:(?:https|http):\\/\\/)(?:www\\.)?)?(?<named>\\w+\\.\\w+(?:\\.\\w+)*)""");
         for (String link : urls) {
-            Matcher domainMatcher = patternDomainExtract.matcher(link);
-            domainMatcher.find();
-            String temp = domainMatcher.group("named");
+            String temp = matchDomain(link);
             Optional.ofNullable(domainMap.get(temp))
                     .map(count -> domainMap.replace(temp, count + 1))
                     .orElseGet(() -> domainMap.put(temp, 1));
@@ -99,7 +95,11 @@ public class TieHenClass {
         Matcher domainMatcher = patternDomainExtract.matcher(url);
         domainMatcher.find();
         var rating = domainMap.values().stream().reduce(0, Integer::sum) / urls.size();
-        repo.saveAndFlush(new Urls(domainMatcher.group("named"), rating, 1));
+        Urls newUrl = new Urls(domainMatcher.group("named"), rating, 1);
+        if (repo.existsById(domainMatcher.group("named"))) {
+            newUrl.setOccurrences(repo.getReferenceById(domainMatcher.group("named")).getOccurrences() + 1);
+        }
+        repo.saveAndFlush(newUrl);
 
         return rating;
     }
