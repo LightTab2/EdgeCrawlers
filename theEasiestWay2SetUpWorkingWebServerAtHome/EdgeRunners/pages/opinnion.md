@@ -3,6 +3,7 @@ layout: default
 title: Asked for opinnion 
 permalink: /opinnion/
 ---
+<!-- "data": "{\"username\":\"Test1\",\"url\":\"" + url + "\",\"ratePositive\":\"" + positive + "\"}", -->
 
 <table style="margin: 10px auto 0px auto;">
     <tr>
@@ -12,15 +13,40 @@ permalink: /opinnion/
         <th>Thumbs</th>
     </tr>
 </table>
+<script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+</script>
+<script>  
+
+    function sendOpinion(positive,url,username) {   
+        $.ajax(
+        {
+            "headers": { 
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },    
+            "dataType": "json",
+            "data": "{ \"username\":\"Test1\" , \"url\": \""+ url + "\" , \"ratePositive\": \""  + positive + "\"}",
+            "type": "POST",
+            "url": "http://localhost:8080/addRatetoDB",
+            "success": function(response)
+            {
+                if(positive===true){
+                    alert("up"+username);
+                }
+                else{
+                    alert("down"+username);
+                }
+            }
+        }); 
+    }  
+</script>  
 
 <script src="\assets\jquery\jquery-3.3.1.min.js"></script>
-
-<!-- <script type = "text/javascript">   -->
-<!-- <script>  
-    sendOpinion(positive) {   
-        alert("how are you");  
-    }  
-</script>   -->
 
 <script>
     $.ajax(
@@ -44,10 +70,6 @@ permalink: /opinnion/
                 }
                 else
                 {
-                    for (var row in response){
-                        alert(row + "->"+JSON.stringify(response[row]))
-                        $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(True)'></button> <button class='thumb-down' onclick='sendOpinion(False)'></button></td></tr>")
-                        }
                 }
             }
         });
