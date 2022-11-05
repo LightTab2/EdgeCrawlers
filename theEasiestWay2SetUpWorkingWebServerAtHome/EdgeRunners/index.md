@@ -16,12 +16,16 @@ function setCookie(name,value,days)
 }
 function getPostResponse()
 {
-    document.getElementById("login").disabled = true;
     var name = document.getElementById("username").value;
     var password = document.getElementById("password").value;
     if (name == "" | password == "")
+    {
         alert("Nie wszystkie pola są wypełnione!");
-    $.ajax(
+    }
+    else
+    {
+        document.getElementById("login").disabled = true;
+        $.ajax(
         {
             "headers": { 
                 "Accept": "application/json",
@@ -40,7 +44,8 @@ function getPostResponse()
                 }
                 else 
                 {
-                    setCookie(sessionToken, response, 3);
+                    setCookie("sessionToken", response, 3);
+                    setCookie("userName", name, 3);
                     window.location.href = "/opinnion";
                 }
             },
@@ -51,6 +56,7 @@ function getPostResponse()
             },
             timeout: 6000
         });
+    }
 }
 </script>
 

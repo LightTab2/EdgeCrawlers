@@ -31,12 +31,23 @@ permalink: /opinnion/
             },    
             "dataType": "json",
             "type": "GET",
-            "url": "http://localhost:8080/urlData",
+            "url": "http://150.254.40.14:8080/urlData",
+            "xhrFields": {
+             "withCredentials": true
+            },
             "success": function(response)
             {
-                for (var row in response){
-                    alert(row + "->"+JSON.stringify(response[row]))
-                    $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(True)'></button> <button class='thumb-down' onclick='sendOpinion(False)'></button></td></tr>")
+                if (response["status"] != "ok")
+                {
+                    alert("Niezgodność cookies: " + response["status"]);
+                    window.location.href = "../";
+                }
+                else
+                {
+                    for (var row in response){
+                        alert(row + "->"+JSON.stringify(response[row]))
+                        $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(True)'></button> <button class='thumb-down' onclick='sendOpinion(False)'></button></td></tr>")
+                        }
                 }
             }
         });

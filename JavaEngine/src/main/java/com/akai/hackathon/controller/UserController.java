@@ -1,25 +1,23 @@
 package com.akai.hackathon.controller;
 
+import com.akai.hackathon.database.SessionManager;
 import com.akai.hackathon.database.UrlRepository;
 import com.akai.hackathon.database.Urls;
-import com.akai.hackathon.database.User;
 import com.akai.hackathon.database.UserRepository;
 import com.akai.hackathon.urlRater.TieHenClass;
-import org.json.JSONArray;
-import lombok.AllArgsConstructor;
-import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.akai.hackathon.database.SessionManager.SHA3String;
+
+@CrossOrigin(origins = {"http://localhost:4000/", "http://150.254.40.15", "http://150.254.40.14:4000", "http://150.254.40.15:4000", "chrome-extension://cohkddidpgdnmeladpmlabmhnlgpmdgd"})
 @RestController
 @RequestMapping("/")
 public class UserController {
@@ -31,18 +29,15 @@ public class UserController {
     UserRepository userRepo;
 
     @Autowired
+    SessionManager sessionManager;
+
+    @Autowired
     TieHenClass tieHenClass;
     private final JSONObject json = new JSONObject();
     Random rand = new Random();
 
-    @AllArgsConstructor
-    private class TokenTime {
-        public String token;
-        public Instant expireTime;
-    }
-    private Map<String, TokenTime> userSessions = new HashMap<>();
-
     @PostMapping(value = "/checkSite", consumes = "application/json", produces = "application/json")
+    @CrossOrigin(origins = {"http://localhost:4000/", "http://150.254.40.15", "http://150.254.40.14:4000", "http://150.254.40.15:4000", "chrome-extension://cohkddidpgdnmeladpmlabmhnlgpmdgd"})
     String getResponse(@RequestBody Map<String, String> sentence) {
         String url = sentence.get("url");
         int response;
@@ -65,6 +60,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/test")
+    @CrossOrigin(origins = {"http://localhost:4000/", "http://150.254.40.15", "http://150.254.40.14:4000", "http://150.254.40.15:4000", "chrome-extension://cohkddidpgdnmeladpmlabmhnlgpmdgd"})
     void test() {
         tieHenClass.rateUrl("https://www.gov.pl/");
     }
@@ -84,19 +80,8 @@ public class UserController {
     //    return json.toString();
     //}
 
-    private String SHA3String(String text) {
-        SHA3.DigestSHA3 sha3 = new SHA3.Digest256();
-        sha3.update(text.getBytes());
-        StringBuilder passwordBuilder = new StringBuilder();
-
-        for (byte b : sha3.digest()) {
-            passwordBuilder.append(String.format("%02x", b & 0xFF));
-        }
-
-        return passwordBuilder.toString();
-    }
-
-    @PostMapping(value = "/checkUser", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/checkUser", consumes = "application/json")
+    @CrossOrigin(origins = {"http://localhost:4000/", "http://150.254.40.15", "http://150.254.40.14:4000", "http://150.254.40.15:4000", "chrome-extension://cohkddidpgdnmeladpmlabmhnlgpmdgd"})
     String checkUser(@RequestBody Map<String, String> sentence) {
         if (userRepo.findById(sentence.get("name")).isPresent()) {
             String passwordHash = userRepo.findById(sentence.get("name")).get().getPassword();
@@ -104,7 +89,7 @@ public class UserController {
 
             if (passwordHash.equals(passwordHashFromUser)) {
                 updateUserSession(sentence.get("name"));
-                return userSessions.get(sentence.get("name")).token;
+                return sessionManager.getSession(sentence.get("name")).getToken();
             }
             else {
                 return "Wrong password";
@@ -114,36 +99,61 @@ public class UserController {
         return "User does not exist";
     }
 
-    @GetMapping(value = "/opinnions")
-    void checkOpinnions(HttpServletRequest request)
-    {
-        String sessionTokenValue = Optional.ofNullable(Arrays.stream(request.getCookies())
-                .collect(Collectors.toMap(
-                        Cookie::getName,
-                        Cookie::getValue))
-                .get("sessionToken")).orElseThrow( RuntimeException::new);
-    }
+//    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+//    static public class MissingTokenException extends RuntimeException {
+//        public MissingTokenException() {
+//            super();
+//        }
+//        public MissingTokenException(String message, Throwable cause) {
+//            super(message, cause);
+//        }
+//        public MissingTokenException(String message) {
+//            super(message);
+//        }
+//        public MissingTokenException(Throwable cause) {
+//            super(cause);
+//        }
+//    }
 
     @GetMapping(value = "/urlData", produces = "application/json")
-    String getUrlData()
+    @CrossOrigin(origins = {"http://localhost:4000/", "http://150.254.40.15", "http://150.254.40.14:4000", "http://150.254.40.15:4000", "chrome-extension://cohkddidpgdnmeladpmlabmhnlgpmdgd"})
+    String getUrlData(HttpServletRequest request)
     {
-        var url = urlRepo.findAll();
-        for (int i = 0; i != url.size(); ++i) {
-            JSONObject jsonChild = new JSONObject();
-            jsonChild.put("url", url.get(i).getUrl());
-            jsonChild.put("rating", url.get(i).getRating());
-            jsonChild.put("occurrences", url.get(i).getOccurrences());
-            json.put(Integer.toString(i), jsonChild);
+        json.put("status", "ok");
+
+        if (request.getCookies() == null)
+            return "{\"status\":\"wynocha1\"}";
+        Map<String, String> cookies = Arrays.stream(request.getCookies())
+                .collect(Collectors.toMap(
+                        Cookie::getName,
+                        Cookie::getValue));
+        Optional<String> token = Optional.ofNullable(cookies.get("sessionToken"));
+        Optional<String> user = Optional.ofNullable(cookies.get("userName"));
+
+        try{
+            if (token.isEmpty() || user.isEmpty() || !sessionManager.checkAuthorization(token.get()).equals(user.get()))
+            {
+                return "{\"status\":\"wynocha2\"}";
+            }
+        } catch (SessionManager.SessionManagerException e) {
+            return "{\"status\":\"wynocha3\"}";
         }
+
+        AtomicInteger i = new AtomicInteger();
+        urlRepo.findAll().stream()
+                .sorted((url1, url2) ->
+                        Integer.compare(url2.getOccurrences(), url1.getOccurrences()))
+                .forEach( url -> {
+                    JSONObject jsonChild = new JSONObject();
+                    jsonChild.put("url", url.getUrl());
+                    jsonChild.put("rating", url.getRating());
+                    jsonChild.put("occurrences", url.getOccurrences());
+                    json.put(Integer.toString(i.getAndIncrement()), jsonChild);
+                });
         return json.toString();
     }
 
     private void updateUserSession(String username) {
-        if(userSessions.containsKey(username)) {
-            userSessions.replace(username, new TokenTime(userSessions.get(username).token, Instant.now().plus(2, ChronoUnit.HOURS)));
-        } else {
-            String token = SHA3String(String.valueOf(Instant.now().toEpochMilli()));
-            userSessions.put(username, new TokenTime(token, Instant.now().plus(2, ChronoUnit.HOURS)));
-        }
+        sessionManager.tokenRenewal(username);
     }
 }
