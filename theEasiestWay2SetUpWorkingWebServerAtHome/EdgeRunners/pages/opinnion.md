@@ -7,8 +7,8 @@ permalink: /opinnion/
 <table style="margin: 10px auto 0px auto;">
     <tr>
         <th>URL</th>
-        <th>Customer ID</th>
         <th>Rent</th>
+        <th>Occurances</th>
         <th>Thumbs</th>
     </tr>
 </table>
@@ -16,11 +16,11 @@ permalink: /opinnion/
 <script src="\assets\jquery\jquery-3.3.1.min.js"></script>
 
 <!-- <script type = "text/javascript">   -->
-<script>  
+<!-- <script>  
     sendOpinion(positive) {   
         alert("how are you");  
     }  
-</script>  
+</script>   -->
 
 <script>
     $.ajax(
@@ -31,18 +31,13 @@ permalink: /opinnion/
             },    
             "dataType": "json",
             "type": "GET",
-            "url": "http://localhost:8080/opinnionsData",
+            "url": "http://localhost:8080/urlData",
             "success": function(response)
             {
-                alert(response)
-                for (var i = 0; i != 2; ++i)
-                $("table").append("
-                <tr> <td>ame</td> 
-                <td>Cusomer ID</td> 
-                <td>Ret</td> 
-                <td> <button class='thumb-up' onclick="sendOpinion(True)"></button> 
-                <button class='thumb-down' onclick="sendOpinion(False)"></button></td></tr>"
-                )
+                for (var row in response){
+                    alert(row + "->"+JSON.stringify(response[row]))
+                    $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(True)'></button> <button class='thumb-down' onclick='sendOpinion(False)'></button></td></tr>")
+                }
             }
         });
 </script>
