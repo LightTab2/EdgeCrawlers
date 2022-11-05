@@ -5,21 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.akai.hackathon.database.UrlRepository;
 import com.akai.hackathon.database.Urls;
-import netscape.javascript.JSObject;
-import org.json.JSONArray;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 enum DomainRates {
     Whitelist,
@@ -27,53 +24,42 @@ enum DomainRates {
     Deny
 }
 
+
+@Component
 public class TieHenClass {
 
     @Autowired
-    static UrlRepository repo;
+    UrlRepository repo;
+
+    @Autowired
+    ScrapperClient scrapper;
 
     static double decayFactor = 0.95;
 
-    public static int rateUrl(String url) {
+    public int rateUrl(String url) {
         int rating = 0;
 
         // Rate domain
         DomainRates domainClassification = rateDomain(url);
         switch (domainClassification) {
             case Whitelist:
-                System.out.printf("Website %s is whitelisted%n", url);
+                //System.out.printf("Website %s is whitelisted%n", url);
                 repo.saveAndFlush(new Urls(url, 100));
                 break;
             case Pass:
-                System.out.printf("Website %s is passed%n", url);
+                //System.out.printf("Website %s is passed%n", url);
                 break;
             case Deny:
-                System.out.printf("Website %s is denied%n", url);
+                //System.out.printf("Website %s is denied%n", url);
                 break;
         }
 
-//        try {
-//            traversePage(url);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//        }
-
-//        try {
-//            temp(url);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//        }
-
-//        try {
-//            Runtime.getRuntime().exec("python ./src/main/resources/run_this.py https://www.gov.pl/");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        rating = basicTrustRank(url);
 
         return rating;
     }
 
-    private static void temp(String url) throws IOException {
+    private void temp(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         Elements links = doc.select("a[href]");
 
@@ -86,7 +72,7 @@ public class TieHenClass {
 
     }
 
-    private static void basicTrustRank(String url) {
+    private int basicTrustRank(String url) {
         List<String> urls = grabUrls(url);
 
         Map<String, Integer> domainMap = new HashMap<>();
@@ -108,15 +94,19 @@ public class TieHenClass {
             domainMap.replace(key, domainMap.get(key) * databaseTrustRanks.getOrDefault(key, 0));
         }
 
+        // Add to database
         domainMatcher = patternDomainExtract.matcher(url);
-        repo.saveAndFlush(new Urls(domainMatcher.group(1), domainMap.values().stream().reduce(0, Integer::sum) / urls.size()));
+        var rating = domainMap.values().stream().reduce(0, Integer::sum) / urls.size();
+        repo.saveAndFlush(new Urls(domainMatcher.group(1), rating));
+
+        return rating;
     }
 
-    private static List<String> grabUrls(String url) {
-        return List.of();
+    public List<String> grabUrls(String url) {
+        return scrapper.getUrls(url);
     }
 
-    private static DomainRates rateDomain(String url) {
+    private DomainRates rateDomain(String url) {
         // Compile pattern
         Pattern patternDomainExtract = Pattern.compile("\\.(\\w+)");
         Matcher domainMatcher = patternDomainExtract.matcher(url);
@@ -132,7 +122,7 @@ public class TieHenClass {
         return DomainRates.Pass;
     }
 
-    private static int traversePage(String url) throws IOException {
+    private int traversePage(String url) throws IOException {
         Document doc = Jsoup.connect(url).get();
         System.out.println(doc.title());
 
@@ -144,9 +134,9 @@ public class TieHenClass {
         return 0;
     }
 
-    private static HashMap<String, Integer> trustedDomains = new HashMap<>(Map.of(
+    private HashMap<String, Integer> trustedDomains = new HashMap<>(Map.of(
             "edu", 1, "gov", 1
     ));
 
-    private static HashMap<String, HashMap<String, Integer>> blacklistedCombinations;
+    private HashMap<String, HashMap<String, Integer>> blacklistedCombinations;
 }
