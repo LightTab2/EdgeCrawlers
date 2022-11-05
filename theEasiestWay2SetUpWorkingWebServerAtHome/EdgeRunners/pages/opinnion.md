@@ -30,9 +30,9 @@ permalink: /opinnion/
                 "Content-Type": "application/json"
             },    
             "dataType": "json",
-            "data": "{ \"username\":\"Test1\" , \"url\": \""+ url + "\" , \"ratePositive\": \""  + positive + "\"}",
+            "data": "{ \"username\":\"Test1\" , \"url\": \""+ url + "\" , \"ratePositive\": \""+ positive + "\"}",
             "type": "POST",
-            "url": "http://localhost:8080/addRatetoDB",
+            "url": "http://150.254.40.14:8080/addRatetoDB",
             "success": function(response)
             {
                 if(positive===true){
@@ -49,7 +49,26 @@ permalink: /opinnion/
 <script src="\assets\jquery\jquery-3.3.1.min.js"></script>
 
 <script>
-    $.ajax(
+$.ajax(
+{
+    "headers": { 
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    },    
+    "dataType": "json",
+    "type": "GET",
+    "url": "http://150.254.40.14:8080/urlData",
+    "xhrFields": {
+        "withCredentials": true
+    },
+    "success": function(response)
+    {
+        if (response["status"] != "ok")
+        {
+            alert("Niezgodność cookies: " + response["status"]);
+            window.location.href = "../";
+        }
+        $.ajax(
         {
             "headers": { 
                 "Accept": "application/json",
@@ -58,19 +77,15 @@ permalink: /opinnion/
             "dataType": "json",
             "type": "GET",
             "url": "http://150.254.40.14:8080/urlData",
-            "xhrFields": {
-             "withCredentials": true
-            },
             "success": function(response)
             {
-                if (response["status"] != "ok")
-                {
-                    alert("Niezgodność cookies: " + response["status"]);
-                    window.location.href = "../";
-                }
-                else
-                {
+                for (var row in response){
+                    if(response[row]["url"] !== undefined){
+                        $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(\"true\","+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button> <button class='thumb-down' onclick='sendOpinion(false,"+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button></td></tr>")
+                    }
                 }
             }
         });
+    }
+}
 </script>
