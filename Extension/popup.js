@@ -1,15 +1,18 @@
-$.ajax(
-{
-    "headers": { 
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-    },    
-    "dataType": "text",
-    "type": "POST",
-    "url": "http://localhost:8080/checkSite",
-    "success": function(response) 
-    {
-        var json = $.parseJSON(response);
-        $("#percent").html(json["percent"]);
-    }
+chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    let url = tabs[0].url;
+    $.ajax(
+        {
+            "headers": { 
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },    
+            "dataType": "json",
+            "type": "POST",
+            "data": "{\"url\" : \"" + url + "\"}",
+            "url": "http://150.254.40.13:8080/checkSite",
+            "success": function(response)
+            {
+                $("#percent").html(response["percent"]);
+            }
+        });
 });
