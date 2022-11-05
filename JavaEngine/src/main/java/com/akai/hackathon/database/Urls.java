@@ -25,6 +25,7 @@ public class Urls {
     public Urls(String url, int rating, int occurrences) {
         this.url = url;
         this.rating = rating;
+        this.occurrences=occurrences;
     }
 
     public String getUrl() {

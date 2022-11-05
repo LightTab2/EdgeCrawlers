@@ -55,11 +55,13 @@ public class UserController {
             occurrences = opt.get().getOccurrences();
         } else {
             response = rand.nextInt(101);
+            //response = (new TieHenClass()).rateUrl(url);
             occurrences = 1;
-            urlRepo.saveAndFlush(new Urls(url, response, occurrences));
+            urlRepo.saveAndFlush(new Urls(url, response, 1));
         }
 
         json.put("percent", response);
+        json.put("occurrences", occurrences);
         return json.toString();
     }
 
