@@ -1,0 +1,21 @@
+﻿English:
+A copyright notice shall not be seen here by thee, but if you insist it's here https://creativecommons.org/publicdomain/zero/1.0/
+
+Blog and its entire content, except softwares and fonts used, doesn't have any bit of copyright at all.
+I release it from these bounds called the copyright i.e.: you can do with it whatever you want, without asking for permission.
+Attribution is appreciated but not required.
+Who knows? Maybe someone will make a good use of it.
+
+LICENSE_JEKYLL.txt and LICENSE_JQUERY.txt are the files with licenses of softwares used, mentoined before, if you plan to use them, you need to follow the terms, described in those licenses.
+LICENSE_FANTASQUE_SANS_MONO.txt is the license of the font used, you need to follow this as well if you plan to use the font.
+
+Polish:
+Nie znajdziesz tutaj żadnych praw autorskich, https://creativecommons.org/publicdomain/zero/1.0/
+
+Blog z całą jego zawartością, poza użytymi programami i czcionkami, nie posiada żadnych praw autorskich.
+Zrzekam się praw autorskich tzn.: róbcie sobie z tym co checie, bez pytania.
+Miło jak ktoś o mnie wspomni, ale nie jest to konieczne.
+Kto wie? Może komuś się przyda...
+
+LICENSE_JEKYLL.txt i LICENSE_JQUERY.txt to pliki z licencją użytych programów, o których było mowa, jeżeli zamierzasz ich użyć, musisz postępować według warunków określonych przez te licencje
+LICENSE_FANTASQUE_SANS_MONO.txt jest licencją użytej czcionki, jeżeli planujesz użyć tej czcioki, musisz takżę podążać warunkami tej licencji.

@@ -43,34 +43,18 @@ public class TieHenClass {
         DomainRates domainClassification = rateDomain(url);
         switch (domainClassification) {
             case Whitelist:
-                System.out.printf("Website %s is whitelisted%n", url);
+                //System.out.printf("Website %s is whitelisted%n", url);
                 repo.saveAndFlush(new Urls(url, 100));
                 break;
             case Pass:
-                System.out.printf("Website %s is passed%n", url);
+                //System.out.printf("Website %s is passed%n", url);
                 break;
             case Deny:
-                System.out.printf("Website %s is denied%n", url);
+                //System.out.printf("Website %s is denied%n", url);
                 break;
         }
 
-//        try {
-//            traversePage(url);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//        }
-
-//        try {
-//            temp(url);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//        }
-
-//        try {
-//            Runtime.getRuntime().exec("python ./src/main/resources/run_this.py https://www.gov.pl/");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        rating = basicTrustRank(url);
 
         return rating;
     }
@@ -88,7 +72,7 @@ public class TieHenClass {
 
     }
 
-    private void basicTrustRank(String url) {
+    private int basicTrustRank(String url) {
         List<String> urls = grabUrls(url);
 
         Map<String, Integer> domainMap = new HashMap<>();
@@ -110,8 +94,12 @@ public class TieHenClass {
             domainMap.replace(key, domainMap.get(key) * databaseTrustRanks.getOrDefault(key, 0));
         }
 
+        // Add to database
         domainMatcher = patternDomainExtract.matcher(url);
-        repo.saveAndFlush(new Urls(domainMatcher.group(1), domainMap.values().stream().reduce(0, Integer::sum) / urls.size()));
+        var rating = domainMap.values().stream().reduce(0, Integer::sum) / urls.size();
+        repo.saveAndFlush(new Urls(domainMatcher.group(1), rating));
+
+        return rating;
     }
 
     public List<String> grabUrls(String url) {
