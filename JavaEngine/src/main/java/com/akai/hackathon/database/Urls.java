@@ -10,9 +10,6 @@ import javax.persistence.Table;
 @Table(name = "urls")
 public class Urls {
     @Id
-    @Column(name = "id")
-    private int id;
-
     @Column(name = "url")
     private String url;
 
@@ -22,15 +19,9 @@ public class Urls {
     public Urls() {
     }
 
-    public Urls(int id, String url, int rating) {
-        this.id = id;
+    public Urls(String url, int rating) {
         this.url = url;
         this.rating = rating;
-    }
-
-
-    public int getId() {
-        return id;
     }
 
     public String getUrl() {
@@ -40,11 +31,6 @@ public class Urls {
     public int getRating() {
         return rating;
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
 
     public void setUrl(String url) {
         this.url = url;
