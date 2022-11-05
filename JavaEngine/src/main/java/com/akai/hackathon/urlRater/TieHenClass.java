@@ -42,7 +42,7 @@ public class TieHenClass {
         switch (domainClassification) {
             case Whitelist:
                 //System.out.printf("Website %s is whitelisted%n", url);
-                repo.saveAndFlush(new Urls(url, 100));
+                repo.saveAndFlush(new Urls(url, 100, 1));
                 break;
             case Pass:
                 //System.out.printf("Website %s is passed%n", url);
@@ -95,7 +95,7 @@ public class TieHenClass {
         // Add to database
         domainMatcher = patternDomainExtract.matcher(url);
         var rating = domainMap.values().stream().reduce(0, Integer::sum) / urls.size();
-        repo.saveAndFlush(new Urls(domainMatcher.group(1), rating));
+        repo.saveAndFlush(new Urls(domainMatcher.group(1), rating, 1));
 
         return rating;
     }

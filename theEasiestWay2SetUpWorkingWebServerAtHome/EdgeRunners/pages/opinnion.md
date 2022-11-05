@@ -7,8 +7,8 @@ permalink: /opinnion/
 <table style="margin: 10px auto 0px auto;">
     <tr>
         <th>URL</th>
-        <th>Customer ID</th>
-        <th>Rent</th>
+        <th>Occurences</th>
+        <th>Rate</th>
     </tr>
 </table>
 
