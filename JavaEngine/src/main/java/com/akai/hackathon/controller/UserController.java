@@ -20,20 +20,20 @@ public class UserController {
     private final JSONObject json = new JSONObject();
     Random rand = new Random();
 
-    @GetMapping(value = "/checkSite", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/checkSite", consumes = "application/json", produces = "application/json")
     String getResponse(@RequestBody Map<String, String> sentence) {
         String url = sentence.get("url");
-        String response;
+        int response;
 
         Optional<Urls> opt = repo.findById(url);
         if (opt.isPresent()) {
-            response = Integer.toString(opt.get().getRating());
+            response = opt.get().getRating();
         } else {
-            response = String.valueOf(rand.nextInt(101));
-            repo.saveAndFlush(new Urls(url, Integer.parseInt(response)));
+            response = rand.nextInt(101);
+            repo.saveAndFlush(new Urls(url, response));
         }
 
-        json.put("response", response);
+        json.put("percent", response);
         return json.toString();
     }
 
