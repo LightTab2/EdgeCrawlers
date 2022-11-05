@@ -1,9 +1,6 @@
 package com.akai.hackathon.controller;
 
-import com.akai.hackathon.database.UrlRepository;
-import com.akai.hackathon.database.Urls;
-import com.akai.hackathon.database.User;
-import com.akai.hackathon.database.UserRepository;
+import com.akai.hackathon.database.*;
 import com.akai.hackathon.urlRater.TieHenClass;
 import org.json.JSONArray;
 import lombok.AllArgsConstructor;
@@ -31,6 +28,9 @@ public class UserController {
     UserRepository userRepo;
 
     @Autowired
+    SpecialistsRateRepository srRepo;
+
+    @Autowired
     TieHenClass tieHenClass;
     private final JSONObject json = new JSONObject();
     Random rand = new Random();
@@ -40,6 +40,7 @@ public class UserController {
         public String token;
         public Instant expireTime;
     }
+
     private Map<String, TokenTime> userSessions = new HashMap<>();
 
     @PostMapping(value = "/checkSite", consumes = "application/json", produces = "application/json")
@@ -49,12 +50,10 @@ public class UserController {
         int occurrences;
 
         Optional<Urls> opt = urlRepo.findById(url);
-        if (opt.isPresent())
-        {
+        if (opt.isPresent()) {
             response = opt.get().getRating();
             occurrences = opt.get().getOccurrences();
-        } else
-        {
+        } else {
             response = rand.nextInt(101);
             occurrences = 1;
             urlRepo.saveAndFlush(new Urls(url, response, occurrences));
@@ -105,8 +104,7 @@ public class UserController {
             if (passwordHash.equals(passwordHashFromUser)) {
                 updateUserSession(sentence.get("name"));
                 return userSessions.get(sentence.get("name")).token;
-            }
-            else {
+            } else {
                 return "Wrong password";
             }
         }
@@ -115,18 +113,16 @@ public class UserController {
     }
 
     @GetMapping(value = "/opinnions")
-    void checkOpinnions(HttpServletRequest request)
-    {
+    void checkOpinnions(HttpServletRequest request) {
         String sessionTokenValue = Optional.ofNullable(Arrays.stream(request.getCookies())
                 .collect(Collectors.toMap(
                         Cookie::getName,
                         Cookie::getValue))
-                .get("sessionToken")).orElseThrow( RuntimeException::new);
+                .get("sessionToken")).orElseThrow(RuntimeException::new);
     }
 
     @GetMapping(value = "/urlData", produces = "application/json")
-    String getUrlData()
-    {
+    String getUrlData() {
         var url = urlRepo.findAll();
         for (int i = 0; i != url.size(); ++i) {
             JSONObject jsonChild = new JSONObject();
@@ -138,16 +134,22 @@ public class UserController {
         return json.toString();
     }
 
-    @PostMapping(value = "/addRatetoDB", produces = "application/json")
-    String testEndpoint()
-    {
+    @PostMapping(value = "/addRatetoDB", consumes = "application/json", produces = "application/json")
+    String testEndpoint(@RequestBody Map<String, String> sentence) {
 
-        return json.toString();
+        String username = sentence.get("username");
+        String url = sentence.get("url");
+        String ratePositive = sentence.get("ratePositive");
+
+        SpecialistsRate tmp = new SpecialistsRate(username, url, Boolean.getBoolean(ratePositive));
+        srRepo.saveAndFlush(tmp);
+
+            return json.toString();
     }
 
 
     private void updateUserSession(String username) {
-        if(userSessions.containsKey(username)) {
+        if (userSessions.containsKey(username)) {
             userSessions.replace(username, new TokenTime(userSessions.get(username).token, Instant.now().plus(2, ChronoUnit.HOURS)));
         } else {
             String token = SHA3String(String.valueOf(Instant.now().toEpochMilli()));
