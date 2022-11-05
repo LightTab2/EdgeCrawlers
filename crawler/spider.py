@@ -18,4 +18,5 @@ class spider(scrapy.Spider):
         links = extractor.extract_links(response)
         f = open('outcome.txt', 'a')
         for link in links:
+            print(urlparse(link.url).netloc)
             f.write(urlparse(link.url).netloc + "\n")
