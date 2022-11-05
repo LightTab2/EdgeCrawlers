@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 @RestController
@@ -22,11 +23,15 @@ public class UserController {
     @GetMapping(value = "/checkSite", consumes = "application/json", produces = "application/json")
     String getResponse(@RequestBody Map<String, String> sentence) {
         String url = sentence.get("url");
-        String response = String.valueOf(rand.nextInt(101));
-        repo.saveAndFlush(new Urls(url, Integer.parseInt(response)));
-//        repo.saveAndFlush(new Urls(1,"google.com",70));
-//        repo.saveAndFlush(new Urls(2,"facebook.com",30));
-//        repo.saveAndFlush(new Urls(3,"wp.pl",20));
+        String response;
+
+        Optional<Urls> opt = repo.findById(url);
+        if (opt.isPresent()) {
+            response = Integer.toString(opt.get().getRating());
+        } else {
+            response = String.valueOf(rand.nextInt(101));
+            repo.saveAndFlush(new Urls(url, Integer.parseInt(response)));
+        }
 
         json.put("response", response);
         return json.toString();
