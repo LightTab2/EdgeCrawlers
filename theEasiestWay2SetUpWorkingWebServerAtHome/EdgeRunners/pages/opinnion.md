@@ -61,7 +61,9 @@ permalink: /opinnion/
             "success": function(response)
             {
                 for (var row in response){
-                    $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"])+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(\"true\","+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button> <button class='thumb-down' onclick='sendOpinion(false,"+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button></td></tr>")
+                    if(response[row]["url"] !== undefined){
+                        $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"])+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(\"true\","+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button> <button class='thumb-down' onclick='sendOpinion(false,"+JSON.stringify(response[row]["url"])+","+getCookie('userName')+")'></button></td></tr>")
+                    }
                 }
             }
         });
