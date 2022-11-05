@@ -138,6 +138,14 @@ public class UserController {
         return json.toString();
     }
 
+    @PostMapping(value = "/addRatetoDB", produces = "application/json")
+    String testEndpoint()
+    {
+
+        return json.toString();
+    }
+
+
     private void updateUserSession(String username) {
         if(userSessions.containsKey(username)) {
             userSessions.replace(username, new TokenTime(userSessions.get(username).token, Instant.now().plus(2, ChronoUnit.HOURS)));
