@@ -2,6 +2,8 @@ package com.akai.hackathon.controller;
 
 import com.akai.hackathon.database.UrlRepository;
 import com.akai.hackathon.database.Urls;
+import com.akai.hackathon.database.User;
+import com.akai.hackathon.database.UserRepository;
 import com.akai.hackathon.urlRater.TieHenClass;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,10 @@ import java.util.Random;
 public class UserController {
 
     @Autowired
-    UrlRepository repo;
+    UrlRepository urlRepo;
+
+    @Autowired
+    UserRepository userRepo;
     private final JSONObject json = new JSONObject();
     Random rand = new Random();
 
@@ -25,12 +30,12 @@ public class UserController {
         String url = sentence.get("url");
         int response;
 
-        Optional<Urls> opt = repo.findById(url);
+        Optional<Urls> opt = urlRepo.findById(url);
         if (opt.isPresent()) {
             response = opt.get().getRating();
         } else {
             response = rand.nextInt(101);
-            repo.saveAndFlush(new Urls(url, response));
+            urlRepo.saveAndFlush(new Urls(url, response));
         }
 
         json.put("percent", response);
@@ -40,5 +45,28 @@ public class UserController {
     @GetMapping(value = "/test")
     void test() {
         TieHenClass.rateUrl("https://www.gov.pl/");
+    }
+
+    @PostMapping(value = "/addUser", consumes = "application/json", produces = "application/json")
+    String newUser(@RequestBody Map<String, String> sentence) {
+        String response;
+        if (userRepo.existsById(sentence.get("name"))) {
+            response = "User already exists.";
+        } else {
+            User user = new User(sentence.get("name"), sentence.get("password"), sentence.get("category"));
+            userRepo.saveAndFlush(user);
+            response = "OK";
+        }
+
+        json.put("status", response);
+        return json.toString();
+    }
+
+    @PostMapping(value = "/checkUser", consumes = "application/json", produces = "application/json")
+    User checkUser(@RequestBody Map<String, String> sentence) {
+        if (userRepo.findById(sentence.get("name")).isPresent()) {
+            return userRepo.findById(sentence.get("name")).get();
+        }
+        return null;
     }
 }
