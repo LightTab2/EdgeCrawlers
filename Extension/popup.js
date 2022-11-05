@@ -1,16 +1,15 @@
 $.ajax(
 {
-    headers: { 
+    "headers": { 
         "Accept": "application/json",
-        "Content-Type": "application/json" 
-    },
-    type: "POST",
-    url: "http://localhost:8080/checkSite",
-    data: "{}",
-    contentType: "application/json",
-    dataType: "json",
-    success: function(response) 
+        "Content-Type": "application/json"
+    },    
+    "dataType": "text",
+    "type": "POST",
+    "url": "http://localhost:8080/checkSite",
+    "success": function(response) 
     {
-        alert("Yeah!");
+        var json = $.parseJSON(response);
+        $("#percent").html(json["percent"]);
     }
 });
