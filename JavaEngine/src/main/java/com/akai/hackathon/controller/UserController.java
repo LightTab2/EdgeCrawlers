@@ -136,7 +136,7 @@ public class UserController {
 
     @PostMapping(value = "/addRatetoDB", consumes = "application/json", produces = "application/json")
     String testEndpoint(@RequestBody Map<String, String> sentence) {
-
+        System.out.println(sentence);
         String username = sentence.get("username");
         String url = sentence.get("url");
         String ratePositive = sentence.get("ratePositive");

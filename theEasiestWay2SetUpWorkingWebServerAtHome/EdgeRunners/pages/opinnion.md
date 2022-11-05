@@ -3,6 +3,7 @@ layout: default
 title: Asked for opinnion 
 permalink: /opinnion/
 ---
+<!-- "data": "{\"username\":\"Test1\",\"url\":\"" + url + "\",\"ratePositive\":\"" + positive + "\"}", -->
 
 <table style="margin: 10px auto 0px auto;">
     <tr>
@@ -12,9 +13,8 @@ permalink: /opinnion/
         <th>Thumbs</th>
     </tr>
 </table>
-
 <script>  
-    function sendOpinion(positive) {   
+    function sendOpinion(positive,url) {   
         $.ajax(
         {
             "headers": { 
@@ -22,15 +22,16 @@ permalink: /opinnion/
                 "Content-Type": "application/json"
             },    
             "dataType": "json",
+            "data": "{ \"username\":\"Test1\" , \"url\": \""+ url + "\" , \"ratePositive\": \""+ positive + "\"}",
             "type": "POST",
             "url": "http://localhost:8080/addRatetoDB",
             "success": function(response)
             {
                 if(positive===true){
-                    alert("up");
+                    alert("up"+url);
                 }
                 else{
-                    alert("down");
+                    alert("down"+url);
                 }
             }
         }); 
@@ -52,7 +53,7 @@ permalink: /opinnion/
             "success": function(response)
             {
                 for (var row in response){
-                    $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"]).slice(1,-1)+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(true)'></button> <button class='thumb-down' onclick='sendOpinion(false)'></button></td></tr>")
+                    $("table").append("<tr> <td>"+JSON.stringify(response[row]["url"])+"<td>"+JSON.stringify(response[row]["rating"])+"</td>"+"<td>"+JSON.stringify(response[row]["occurrences"])+"</td> <td> <button class='thumb-up' onclick='sendOpinion(\"true\","+JSON.stringify(response[row]["url"])+")'></button> <button class='thumb-down' onclick='sendOpinion(false,"+JSON.stringify(response[row]["url"])+")'></button></td></tr>")
                 }
             }
         });
