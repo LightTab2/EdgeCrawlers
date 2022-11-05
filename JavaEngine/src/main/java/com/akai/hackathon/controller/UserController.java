@@ -20,10 +20,14 @@ public class UserController {
     @Autowired
     UrlRepository urlRepo;
 
-    @Autowired
+    @Autowirexd
     UserRepository userRepo;
     private final JSONObject json = new JSONObject();
     Random rand = new Random();
+
+    Map<String, Pair<String, Data>> sentence();
+
+
 
     @PostMapping(value = "/checkSite", consumes = "application/json", produces = "application/json")
     String getResponse(@RequestBody Map<String, String> sentence) {

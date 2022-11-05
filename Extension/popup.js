@@ -9,10 +9,10 @@ chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
             "dataType": "json",
             "type": "POST",
             "data": "{\"url\" : \"" + url + "\"}",
-            "url": "http://150.254.40.13:8080/checkSite",
+            "url": "http://localhost:8080/checkSite",
             "success": function(response)
             {
-                $("#percent").html(response["percent"]);
+                $("#percent").html(response["percent"] + '%');
             }
         });
 });
