@@ -47,6 +47,7 @@ public class TieHenClass {
                 repo.saveAndFlush(new Urls(url, 100));
                 break;
             case Pass:
+                rating = basicTrustRank(url);
                 //System.out.printf("Website %s is passed%n", url);
                 break;
             case Deny:
@@ -54,7 +55,6 @@ public class TieHenClass {
                 break;
         }
 
-        rating = basicTrustRank(url);
 
         return rating;
     }
@@ -78,11 +78,12 @@ public class TieHenClass {
         Map<String, Integer> domainMap = new HashMap<>();
 
         // Count domain appearances
-        Pattern patternDomainExtract = Pattern.compile("^(?:(?:https|http):\\/\\/)(?:www\\.)?(\\w+\\.\\w+(?:\\.\\w+)*)");
-        Matcher domainMatcher;
+        Pattern patternDomainExtract = Pattern.compile("""
+        ^(?:(?:(?:https|http):\\/\\/)(?:www\\.)?)?(?<named>\\w+\\.\\w+(?:\\.\\w+)*)""");
         for (String link : urls) {
-            domainMatcher = patternDomainExtract.matcher(link);
-            String temp = domainMatcher.group(1);
+            Matcher domainMatcher = patternDomainExtract.matcher(link);
+            domainMatcher.find();
+            String temp = domainMatcher.group("named");
             Optional.ofNullable(domainMap.get(temp))
                     .map(count -> domainMap.replace(temp, count + 1))
                     .orElseGet(() -> domainMap.put(temp, 1));
@@ -95,9 +96,10 @@ public class TieHenClass {
         }
 
         // Add to database
-        domainMatcher = patternDomainExtract.matcher(url);
+        Matcher domainMatcher = patternDomainExtract.matcher(url);
+        domainMatcher.find();
         var rating = domainMap.values().stream().reduce(0, Integer::sum) / urls.size();
-        repo.saveAndFlush(new Urls(domainMatcher.group(1), rating));
+        repo.saveAndFlush(new Urls(domainMatcher.group("named"), rating));
 
         return rating;
     }
